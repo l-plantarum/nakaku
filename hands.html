@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GSI Tiles on Leaflet</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+
+<style>
+  body {padding: 0; margin: 0}
+  html, body, #map {height: 100%; width: 100%;}
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+<script>
+var map = L.map('map');
+L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+  attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+}).addTo(map);
+map.setView([34.3947244,132.4615448], 16);
+
+L.marker([34.3945211,132.4620468], {"title": "東急ハンズ"}).addTo(map);
+// see https://github.com/pointhi/leaflet-color-markers
+var greenIcon = new L.Icon({
+  iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+L.marker([34.39476,132.4615], {icon: greenIcon, "title": "セブン"}).addTo(map);
+L.marker([34.39481,132.4624], {icon: greenIcon, "title": "ポプラ"}).addTo(map);
+L.marker([34.39617,132.4629], {icon: greenIcon, "title": "セブン"}).addTo(map);
+L.marker([34.39483,132.4600], {icon: greenIcon, "title": "ファミマ"}).addTo(map);
+L.marker([34.39558,132.4608], {icon: greenIcon, "title": "セブン"}).addTo(map);
+L.marker([34.39359,132.4610], {icon: greenIcon, "title": "ファミマ"}).addTo(map);
+L.marker([34.39559,132.4642], {icon: greenIcon, "title": "セブン"}).addTo(map);
+L.marker([34.39284,132.4608], {icon: greenIcon, "title": "ローソン"}).addTo(map);
+L.marker([34.39242,132.4602], {icon: greenIcon, "title": "ローソン"}).addTo(map);
+L.marker([34.39363,132.4573], {icon: greenIcon, "title": "セブン"}).addTo(map);
+L.marker([34.39412,132.4639], {icon: greenIcon, "title": "ローソン"}).addTo(map);
+L.marker([34.39451183,132.45980322000003], {icon: greenIcon, "title": "セブン"}).addTo(map);
+
+</script>
+</body>
+</html>

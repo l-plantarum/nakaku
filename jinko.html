@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GSI Tiles on Leaflet</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  #map {
+    width: 600px;
+    height: 400px;
+  }
+</style>
+
+<style>
+#map { width: 600px; height: 400px; }
+.info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
+.legend { text-align: left; line-height: 18px; color: #555; } .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+<script>
+var map = L.map('map');
+L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
+  attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+}).addTo(map);
+map.setView([34.3947244,132.4615448], 15);
+
+
+// 右側の人口情報
+var info = L.control();
+
+info.onAdd = function (map) {
+	this._div = L.DomUtil.create('div', 'info');
+	this.update();
+	return this._div;
+};
+
+info.update = function (props) {
+	this._div.innerHTML = '<h4>広島市中区の人口</h4>' +  (props ?
+		'<b>' + props.S_NAME + '</b><br />' + props.JINKO + '人'
+		: '中区内でマウスオーバーしてください');
+};
+
+info.addTo(map);
+
+// 右下の凡例コーナー
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+
+  var div = L.DomUtil.create('div', 'info legend'),
+   grades = [0, 100, 200, 500, 1000, 2000, 5000, 10000],
+   labels = [],
+   from, to;
+
+  for (var i = 0; i < grades.length; i++) {
+   from = grades[i];
+   to = grades[i + 1];
+    labels.push(
+     '<i style="background:' + getColor(from + 1) + '"></i> ' +
+     from + (to ? '&ndash;' + to : '+'));
+  }
+
+  div.innerHTML = labels.join('<br>');
+  return div;
+};
+
+legend.addTo(map);
+
+function getColor(d) {
+    return d > 10000 ? '#800026' :
+           d > 5000  ? '#BD0026' :
+           d > 2000  ? '#E31A1C' :
+           d > 1000  ? '#FC4E2A' :
+           d > 500   ? '#FD8D3C' :
+           d > 200   ? '#FEB24C' :
+           d > 100   ? '#FED976' :
+                      '#FFEDA0';
+}
+
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.JINKO),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.5
+    };
+}
+
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
+    });
+
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+    info.update(layer.feature.properties);
+}
+
+var geojson;
+
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+    info.update();
+}
+
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+}
+
+$.getJSON("https://raw.githubusercontent.com/l-plantarum/nakaku/master/h27ka34101.geojson", function (data) {
+    geojson = L.geoJson(data, {style: style, onEachFeature: onEachFeature}).addTo(map);
+});
+
+map.attributionControl.addAttribution('広島市中区の人口 &copy; <a href="https://www.stat.go.jp/data/kokusei/2015/index.html">H27国勢調査</a>');
+
+</script>
+</body>
+</html>
